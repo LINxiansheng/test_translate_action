@@ -36,7 +36,7 @@ jobs:
             } else if (github.event_name === 'pull_request_target') {
               content = (github.event.pull_request.title || '') + ' ' + (github.event.pull_request.body || '');
             }
-            
+            console.log('Content:', content);
             // Check for Chinese characters (Unicode range \u4e00-\u9fff)
             const chineseRegex = /[\u4e00-\u9fff]/;
             const hasChinese = chineseRegex.test(content);
