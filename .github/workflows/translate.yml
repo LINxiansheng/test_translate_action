@@ -35,62 +35,27 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            // 中文字符检测正则表达式（包括基本汉字和扩展汉字）
-            const chineseRegex = /[\u4e00-\u9fa5\u3400-\u4dbf\uf900-\ufaff]/;
-            // 我们的评论内容
-            const commentBody = 'Please ask your question at https://ask.oceanbase.com/';
-            
-            // 获取issue/PR的编号
-            const issueNumber = context.issue.number;
-            
-            // 获取标题和内容（根据事件类型）
-            let title, content;
+            let content = '';
             if (github.event_name === 'issues') {
-              title = context.payload.issue.title || '';
-              content = context.payload.issue.body || '';
+              content = (github.event.issue.title || '') + ' ' + (github.event.issue.body || '');
             } else if (github.event_name === 'pull_request_target') {
-              title = context.payload.pull_request.title || '';
-              content = context.payload.pull_request.body || '';
+              content = (github.event.pull_request.title || '') + ' ' + (github.event.pull_request.body || '');
             }
             
-            // 检查标题或内容是否包含中文
-            const containsChinese = chineseRegex.test(title) || chineseRegex.test(content);
+            // Check for Chinese characters (Unicode range \u4e00-\u9fff)
+            const chineseRegex = /[\u4e00-\u9fff]/;
+            const hasChinese = chineseRegex.test(content);
             
-            if (!containsChinese) {
-              console.log('No Chinese characters detected. Skipping comment.');
+            if (!hasChinese) {
+              console.log('No Chinese characters detected, skipping comment.');
               return;
             }
-            console.log('Chinese characters detected in title or content.');
             
-            // 获取该issue/PR的所有评论
-            const comments = await github.paginate(github.rest.issues.listComments, {
+            const issueNumber = context.issue.number;
+            
+            github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
-              per_page: 100
+              body: 'Please ask your question at https://ask.oceanbase.com/'
             });
-            
-            // 检查是否已存在相同内容的评论
-            const commentExists = comments.some(comment => 
-              comment.body.includes('https://ask.oceanbase.com/') && 
-              comment.user.login === 'github-actions[bot]'
-            );
-            
-            if (commentExists) {
-              console.log('Duplicate comment detected. Skipping to avoid spam.');
-              return;
-            }
-            
-            // 创建评论
-            try {
-              await github.restissues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: issueNumber,
-                body: commentBody
-              });
-              console.log('Comment added successfully.');
-            } catch (error) {
-              console.error('Failed to add comment:', error);
-              core.error("Failed to create comment: " + error.message);
-            }
