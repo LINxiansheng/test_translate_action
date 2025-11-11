@@ -16,6 +16,7 @@ on:
 jobs:
   translate:
     permissions:
+      contents: read
       issues: write
       discussions: write
       pull-requests: write
@@ -31,14 +32,15 @@ jobs:
         if: github.event_name == 'issues' || github.event_name == 'pull_request_target'
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}  # 明确指定 token
           script: |
             const issueNumber = github.event_name === 'issues' 
               ? context.issue.number 
-              : github.event.pull_request.number;
+              : context.payload.pull_request.number;  # 使用 payload
             
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issueNumber,
               body: 'Please ask your question at https://ask.oceanbase.com/'
-            })
+            });
