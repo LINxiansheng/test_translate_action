@@ -32,9 +32,11 @@ jobs:
           script: |
             let content = '';
             if (github.event_name === 'issues') {
-              content = (github.event.issue.title || '') + ' ' + (github.event.issue.body || '');
+              const issue = context.payload.issue;
+              content = (issue.title || '') + ' ' + (issue.body || '');
             } else if (github.event_name === 'pull_request_target') {
-              content = (github.event.pull_request.title || '') + ' ' + (github.event.pull_request.body || '');
+              const pr = context.payload.pull_request;
+              content = (pr.title || '') + ' ' + (pr.body || '');
             }
             console.log('Content:', content);
             // Check for Chinese characters (Unicode range \u4e00-\u9fff)
