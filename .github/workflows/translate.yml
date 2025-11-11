@@ -40,10 +40,6 @@ jobs:
 
             const chineseRegex = /[\u4e00-\u9fff]/;
             const hasChinese = chineseRegex.test(content);
-            console.log('Event name:', event_name);
-            console.log('Issue/PR number:', issueNumber);
-            console.log('Content length:', content.length);
-            console.log('Content:', content.substring(0, 200));
             console.log('Chinese?:', hasChinese);
       - name: Translate content
         uses: LINxiansheng/github-translate-action@1.2.4
