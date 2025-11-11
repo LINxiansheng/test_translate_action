@@ -22,7 +22,7 @@ jobs:
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
-      - uses: LINxiansheng/github-translate-action
+      - uses: LINxiansheng/github-translate-action@1.1.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
