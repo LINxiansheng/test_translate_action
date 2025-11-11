@@ -31,6 +31,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             let content = '';
+            let hasChinese = false;
             if (context.payload.issue) {
               content = (context.payload.issue.title || '') + ' ' + (context.payload.issue.body || '');
             } else if (context.payload.pull_request) {
@@ -39,7 +40,7 @@ jobs:
             console.log('Content:', content);
 
             const chineseRegex = /[\u4e00-\u9fff]/;
-            const hasChinese = chineseRegex.test(content);
+            hasChinese = chineseRegex.test(content);
             console.log('Chinese?:', hasChinese);
       - name: Translate content
         uses: LINxiansheng/github-translate-action@1.2.4
@@ -49,7 +50,7 @@ jobs:
           IS_MODIFY_TITLE: true
           APPEND_TRANSLATION: true
       - name: Add comment to issue or pull request
-        if: (context.payload.issue || context.payload.pull_request) && steps.check-chinese.outputs.has_chinese == 'true'
+        if: (github.event_name == 'issues' || github.event_name == 'pull_request_target') && steps.check-chinese.outputs.hasChinese == 'true'
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
