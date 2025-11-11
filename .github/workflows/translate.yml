@@ -34,9 +34,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const issueNumber = github.event_name === 'issues' 
-              ? context.issue.number 
-              : github.event.pull_request.number;
+            const issueNumber = context.issue.number;
             
             github.rest.issues.createComment({
               owner: context.repo.owner,
