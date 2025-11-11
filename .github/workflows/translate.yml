@@ -42,6 +42,8 @@ jobs:
             const chineseRegex = /[\u4e00-\u9fff]/;
             hasChinese = chineseRegex.test(content);
             console.log('Chinese?:', hasChinese);
+
+            core.setOutput('hasChinese', hasChinese ? 'true' : 'false');
       - name: Translate content
         uses: LINxiansheng/github-translate-action@1.2.4
         env:
