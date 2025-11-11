@@ -31,47 +31,20 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             let content = '';
-            let issueNumber = 0;
-            
-            if (github.event_name === 'issues') {
-              issueNumber = context.issue.number;
-              // Try to get from event first
-              content = (github.event.issue?.title || '') + ' ' + (github.event.issue?.body || '');
-              // If empty, fetch from API
-              if (!content.trim()) {
-                const issue = await github.rest.issues.get({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: issueNumber
-                });
-                content = (issue.data.title || '') + ' ' + (issue.data.body || '');
-              }
-            } else if (github.event_name === 'pull_request_target') {
-              issueNumber = github.event.pull_request?.number || context.payload.pull_request?.number;
-              // Try to get from event first
-              content = (github.event.pull_request?.title || '') + ' ' + (github.event.pull_request?.body || '');
-              // If empty, fetch from API
-              if (!content.trim() && issueNumber) {
-                const pr = await github.rest.pulls.get({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  pull_number: issueNumber
-                });
-                content = (pr.data.title || '') + ' ' + (pr.data.body || '');
-              }
+            if (context.payload.issue) {
+              content = (context.payload.issue.title || '') + ' ' + (context.payload.issue.body || '');
+            } else if (context.payload.pull_request) {
+              content = (context.payload.pull_request.title || '') + ' ' + (context.payload.pull_request.body || '');
             }
-            
-            console.log('Event name:', github.event_name);
+            console.log('Content:', content);
+
+            const chineseRegex = /[\u4e00-\u9fff]/;
+            const hasChinese = chineseRegex.test(content);
+            console.log('Event name:', event_name);
             console.log('Issue/PR number:', issueNumber);
             console.log('Content length:', content.length);
             console.log('Content:', content.substring(0, 200));
-            
-            // Check for Chinese characters (Unicode range \u4e00-\u9fff)
-            const chineseRegex = /[\u4e00-\u9fff]/;
-            const hasChinese = chineseRegex.test(content);
-            
-            core.setOutput('has_chinese', hasChinese);
-            console.log('Content contains Chinese:', hasChinese);
+            console.log('Chinese?:', hasChinese);
       - name: Translate content
         uses: LINxiansheng/github-translate-action@1.2.4
         env:
