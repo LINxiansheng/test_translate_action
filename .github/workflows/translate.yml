@@ -53,10 +53,6 @@ jobs:
               content = context.payload.pull_request.body || '';
             }
             
-            // 调试输出标题和内容
-            console.log(`Checking title: "${title}"`);
-            console.log(`Checking content: "${content.substring(0, 100)}..."`);
-            
             // 检查标题或内容是否包含中文
             const containsChinese = chineseRegex.test(title) || chineseRegex.test(content);
             
