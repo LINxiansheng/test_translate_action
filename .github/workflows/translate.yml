@@ -43,7 +43,7 @@ jobs:
 
             core.setOutput('hasChinese', hasChinese ? 'true' : 'false');
       - name: Translate content
-        uses: LINxiansheng/github-translate-action@1.2.4
+        uses: oceanbase/github-translate-action@ob-1.1.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
